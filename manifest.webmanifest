@@ -1,0 +1,17 @@
+{
+  "name": "M&M's",
+  "short_name": "M&M's",
+  "description": "Chat gaya LINE dengan game, belajar, dan teman.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#efe6ff",
+  "theme_color": "#6b4fd6",
+  "lang": "id",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
