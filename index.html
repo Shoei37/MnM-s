@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="id"><head><meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,interactive-widget=resizes-content">
 <meta name="theme-color" content="#6b4fd6">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon-192.png" type="image/png">
@@ -10,6 +10,20 @@
 <title>M&amp;M's</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@600;700&family=Noto+Sans+JP:wght@400;500;700&display=swap">
+<script>
+(function () {
+  var vv = window.visualViewport, r = document.documentElement;
+  function fit() {
+    var h = Math.round(vv ? vv.height : window.innerHeight);
+    r.style.setProperty("--vvh", h + "px");
+    if (window.scrollY || (vv && vv.offsetTop)) window.scrollTo(0, 0);
+  }
+  if (vv) { vv.addEventListener("resize", fit); vv.addEventListener("scroll", fit); }
+  window.addEventListener("resize", fit); window.addEventListener("orientationchange", function () { setTimeout(fit, 250); });
+  document.addEventListener("focusin", function () { setTimeout(fit, 60); setTimeout(fit, 300); });
+  fit();
+})();
+</script>
 <script src="firebase-config.js"></script>
 <script src="mm-backend.js"></script>
 <script src="mm-sync.js"></script>
@@ -1518,6 +1532,68 @@ button:active:not(:disabled) { transform: scale(.94); }
 .dfshot.pea { color: #4c4; font-size: 16px; }
 .chst { text-align: center; }
 .chpanel{display:flex;flex-direction:column;gap:10px;width:200px;align-items:stretch}.chpanel .chrow{flex-wrap:wrap}.chpanel .chbtns{justify-content:center}
+
+/* ===== v39: struktur bersih, warna khas ungu M&M's dikembalikan ===== */
+:root, :root[data-theme="lilac"] { --card:#faf7ff; --card-line:#d6c8f6; }
+body { -webkit-font-smoothing: antialiased; letter-spacing: .005em; }
+.card, .nmain, .ncard, .newslinks, .nfc { background: var(--card); border: 1px solid var(--card-line); border-radius: 14px; box-shadow: 0 1px 2px rgba(29,26,51,.04); }
+.ncard, .newslinks { border-radius: 0; box-shadow: none; border-width: 0 0 1px; }
+.nfc { margin: 10px 14px; padding: 12px; }
+.nhero { background: #3a2390; border-radius: 14px; box-shadow: 0 1px 2px rgba(29,26,51,.12); }
+.nflash { background: #ffd54a; color: #2a2000; border-radius: 4px; }
+.nhword { background: rgba(255,255,255,.12); border-radius: 999px; }
+.nhh, .nmt, .nhw { font-weight: 700; }
+.art.wide, .art.sq, .art.thumb { border-radius: 10px; }
+.art .att { font-weight: 700; font-size: 18px; }
+.promo.p1 { background: var(--card); border: 1px solid var(--card-line); color: var(--fg); }
+.promo.p2 { background: var(--card); border: 1px solid var(--card-line); color: var(--fg); }
+.promo .pcta, .promo .pill2 { background: var(--accent); }
+.promo .pt1 { color: var(--accent); }
+.chip { border: 1px solid var(--card-line); background: var(--card); }
+.chip[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: #fff; }
+.tabbar { box-shadow: 0 -1px 0 var(--bar-line); }
+.swrap > .trow, .swrap { background: var(--shell-bg); }
+.pill { border: 1px solid var(--card-line); background: var(--card); color: var(--fg); border-radius: 999px; }
+h2.stl, .stl { font-weight: 700; letter-spacing: .01em; }
+
+.nupd { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 2px 16px 8px; font-size: 11.5px; color: var(--muted); }
+.nurf { border: 0; background: none; color: var(--muted); font-size: 18px; width: 32px; height: 32px; border-radius: 50%; }
+.nurf.spin { animation: nspin .8s linear infinite; }
+@keyframes nspin { to { transform: rotate(360deg); } }
+
+/* ===== v39 game polish ===== */
+.pianobody { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 12px; gap: 16px; }
+.pianowrap { width: 100%; max-width: 560px; padding: 10px 8px 14px; background: #1b1d22; border-radius: 14px; }
+.piano2 { position: relative; width: 100%; height: min(46vh, 300px); }
+.piano2 .wk { position: absolute; top: 0; bottom: 0; border: 1px solid #c9ccd3; border-top: 0; background: linear-gradient(#fff, #f1f2f5); border-radius: 0 0 8px 8px; color: #9aa0ad; font-size: 11px; font-weight: 700; display: flex; align-items: flex-end; justify-content: center; padding: 0 0 8px; box-sizing: border-box; touch-action: manipulation; }
+.piano2 .wk.on { background: linear-gradient(#efe8ff, #d4c6fb); }
+.piano2 .bkey { position: absolute; top: 0; height: 62%; z-index: 2; border: 0; background: linear-gradient(#2b2e36, #0f1014); border-radius: 0 0 6px 6px; box-shadow: 0 2px 3px rgba(0,0,0,.5); touch-action: manipulation; }
+.piano2 .bkey.on { background: linear-gradient(#7a58e6, #5b34c9); }
+.bkboard { background: #dde1ea; border-radius: 12px; gap: 3px; padding: 3px; }
+.bkc { background: #f4f6fa; border-radius: 5px; }
+.bkboard .bkc.pv { background: #5b34c933; outline: 2px solid #5b34c9; }
+.bk1, .bk3, .bk4, .bk5, .bk6, .bk7 { box-shadow: inset 0 -3px 0 rgba(0,0,0,.18), inset 0 2px 0 rgba(255,255,255,.35); }
+.bk1 { background: #4f8ef7; } .bk2 { background: #ff8a4c; } .bk3 { background: #3fc272; } .bk4 { background: #9a6cf0; } .bk5 { background: #ffc933; } .bk6 { background: #f4566a; } .bk7 { background: #2fc4d6; }
+.piano2 .bkey { background: linear-gradient(#2b2e36, #0f1014); box-shadow: 0 2px 3px rgba(0,0,0,.5); }
+.piano2 .bkey.on { background: linear-gradient(#7a58e6, #5b34c9); }
+.bkc.bkpop { animation: bkpop .22s cubic-bezier(.2,.9,.3,1.4); }
+@keyframes bkpop { 0% { transform: scale(.6); } 100% { transform: scale(1); } }
+.bkscore.bump { animation: bkbump .25s ease-out; }
+@keyframes bkbump { 40% { transform: scale(1.18); } }
+.bkslot { background: #f2f3f5; border: 1px solid #e6e8ec; }
+.chboard { position: relative; border-color: #5f7a43; border-radius: 6px; box-shadow: 0 2px 10px rgba(0,0,0,.12); overflow: hidden; }
+.chsq.hid { color: transparent !important; text-shadow: none !important; }
+.chfly { position: absolute; z-index: 5; display: grid; place-items: center; pointer-events: none; font-size: calc(var(--cs) * .78); line-height: 1; transition: transform .18s cubic-bezier(.3,.8,.3,1); font-family: "Segoe UI Symbol","Noto Sans Symbols 2","DejaVu Sans",sans-serif; filter: drop-shadow(0 3px 3px rgba(0,0,0,.3)); }
+.chfly.pw { color: #fff; text-shadow: 0 0 2px #000, 0 0 2px #000, 0 0 1px #000; }
+.chfly.pb { color: #1a1a1a; }
+.gopt { transition: transform .1s ease, background .15s; }
+.gopt:active, .pill:active, .chip:active { transform: scale(.96); }
+
+
+/* layar tetap stabil saat keyboard muncul (tidak naik sendiri) */
+html, body { height: 100%; overflow: hidden; overscroll-behavior: none; }
+body { position: fixed; inset: 0; width: 100%; }
+.wrap { height: var(--vvh, 100dvh); }
 </style>
 </head><body>
 <div class="wrap">
@@ -5996,16 +6072,32 @@ button:active:not(:disabled) { transform: scale(.94); }
     });
   }
   function gPiano() {
-    var b = gBody();
-    b.appendChild(el("div", "gqs", T("鍵盤をタップして弾こう", "Ketuk tuts untuk bermain", "Tap the keys to play")[lang]));
-    var kb = el("div", "piano");
-    NOTES.forEach(function (n) {
-      var k = el("button", "pkey", n[0]);
-      k.type = "button";
-      k.addEventListener("click", function () { tone(n[1], 0, 0.9, 0.2); k.classList.add("on"); setTimeout(function () { k.classList.remove("on"); }, 150); });
-      kb.appendChild(k);
-    });
-    b.appendChild(kb);
+    var b = gBody(); b.className = "gv-body pianobody";
+    b.appendChild(el("div", "gqs", T("鍵盤をタップして弾こう(2オクターブ)", "Ketuk tuts untuk bermain (2 oktaf)", "Tap the keys to play (2 octaves)")[lang]));
+    var base = 261.63, W = [0, 2, 4, 5, 7, 9, 11], names = ["ド", "レ", "ミ", "ファ", "ソ", "ラ", "シ"];
+    var kb = el("div", "piano2");
+    var whites = 15, wpct = 100 / whites, bl = { 0: 1, 1: 3, 3: 6, 4: 8, 5: 10 };
+    function freq(semi) { return base * Math.pow(2, semi / 12); }
+    function play(f, k) {
+      if (typeof soundOn !== "undefined" && (!soundOn || mute)) return;
+      tone(f, 0, 1.1, 0.16); tone(f * 2, 0, 0.5, 0.04); tone(f * 3, 0, 0.25, 0.02);
+      k.classList.add("on"); setTimeout(function () { k.classList.remove("on"); }, 160); buzz(5);
+    }
+    for (var i = 0; i < whites; i++) {
+      (function (i) {
+        var oct = Math.floor(i / 7), d = i % 7, semi = oct * 12 + W[d], f = freq(semi);
+        var k = el("button", "wk", d === 0 ? names[0] : ""); k.type = "button"; k.style.left = (i * wpct) + "%"; k.style.width = wpct + "%";
+        k.addEventListener("pointerdown", function (e) { e.preventDefault(); play(f, k); });
+        kb.appendChild(k);
+        if (bl[d] !== undefined && i < whites - 1) {
+          var bs = oct * 12 + bl[d], bf = freq(bs), bk = el("button", "bkey"); bk.type = "button";
+          bk.style.left = ((i + 1) * wpct - wpct * 0.3) + "%"; bk.style.width = (wpct * 0.6) + "%";
+          bk.addEventListener("pointerdown", function (e) { e.preventDefault(); e.stopPropagation(); play(bf, bk); });
+          kb.appendChild(bk);
+        }
+      })(i);
+    }
+    var wrap = el("div", "pianowrap"); wrap.appendChild(kb); b.appendChild(wrap);
   }
   $("gvBack").addEventListener("click", closeGame);
   /* ================= rule-based replies (no AI needed) ================= */
@@ -6589,7 +6681,8 @@ button:active:not(:disabled) { transform: scale(.94); }
     nature: { n: T("M&M's ネイチャー", "M&M's Alam", "M&M's Nature"), e: "🔭", c: "#3a9b5c" },
     music: { n: T("M&M's ミュージック", "M&M's Musik", "M&M's Music"), e: "🎵", c: "#8a4fd6" },
     life: { n: T("M&M's ライフ", "M&M's Gaya Hidup", "M&M's Life"), e: "🌿", c: "#7a9a2d" },
-    info: { n: T("M&M's お知らせ", "M&M's Info", "M&M's Notices"), e: "📣", c: "#7a58e6" }
+    info: { n: T("M&M's お知らせ", "M&M's Info", "M&M's Notices"), e: "📣", c: "#7a58e6" },
+    news: { n: T("M&M's ニュース", "M&M's Berita", "M&M's News"), e: "📰", c: "#3b3fd8" }
   };
   var ARTS = [
     { id: "a1", s: "ent", e: "🤖", pal: ["#1c3f95", "#5aa0ff"], k: ["鉄腕アトム", "アニメの歴史"],
@@ -6652,18 +6745,157 @@ button:active:not(:disabled) { transform: scale(.94); }
   (function () { try { var o = JSON.parse(localStorage.getItem("shoeixp-nl") || "{}"); if (o && typeof o === "object") nlikes = o; } catch (e) {} })();
   function nlSave() { try { localStorage.setItem("shoeixp-nl", JSON.stringify(nlikes)); } catch (e) {} xtraTouch(); }
   function dayN() { return Math.floor((Date.now() + 9 * 3600000) / 86400000); }
+  /* ---------- berita sungguhan (RSS: NHK, ANTARA, CNN Indonesia) ---------- */
+  var LIVE = { items: [], at: 0, busy: false, ok: false };
+  var LIVE_KEY = "shoeixp-live";
+  var LIVE_FEEDS = [
+    { c: "jp", s: "news", src: "NHK", urls: ["https://www3.nhk.or.jp/rss/news/cat0.xml", "https://www.nhk.or.jp/rss/news/cat0.xml"] },
+    { c: "jp", s: "sports", src: "NHK", urls: ["https://www3.nhk.or.jp/rss/news/cat7.xml", "https://www.nhk.or.jp/rss/news/cat7.xml"] },
+    { c: "world", s: "news", src: "NHK", urls: ["https://www3.nhk.or.jp/rss/news/cat6.xml", "https://www.nhk.or.jp/rss/news/cat6.xml"] },
+    { c: "id", s: "news", src: "ANTARA", urls: ["https://www.antaranews.com/rss/terkini.xml", "https://www.cnnindonesia.com/nasional/rss"] },
+    { c: "id", s: "sports", src: "ANTARA", urls: ["https://www.antaranews.com/rss/olahraga.xml", "https://www.cnnindonesia.com/olahraga/rss"] },
+    { c: "id", s: "tech", src: "ANTARA", urls: ["https://www.antaranews.com/rss/tekno.xml", "https://www.cnnindonesia.com/teknologi/rss"] },
+    { c: "id", s: "ent", src: "ANTARA", urls: ["https://www.antaranews.com/rss/hiburan.xml", "https://www.cnnindonesia.com/hiburan/rss"] },
+    { c: "world", s: "news", src: "BBC", urls: ["https://feeds.bbci.co.uk/news/world/rss.xml"] },
+    { c: "world", s: "news", src: "Al Jazeera", urls: ["https://www.aljazeera.com/xml/rss/all.xml"] }
+  ];
+  function liveText(s) {
+    try { return (new DOMParser().parseFromString(String(s || ""), "text/html").body.textContent || "").replace(/\s+/g, " ").trim(); }
+    catch (e) { return ""; }
+  }
+  function liveTime(s) {
+    s = String(s || "");
+    var m = /^(\d{4}-\d\d-\d\d) (\d\d:\d\d:\d\d)$/.exec(s);
+    var v = m ? Date.parse(m[1] + "T" + m[2] + "Z") : Date.parse(s);
+    return isFinite(v) ? v : 0;
+  }
+  function liveHash(s) { var h = 5381; s = String(s); for (var i = 0; i < s.length; i++) h = ((h * 33) ^ s.charCodeAt(i)) >>> 0; return h.toString(36); }
+  function liveFetchJson(u, cb) {
+    var ac = (typeof AbortController === "function") ? new AbortController() : null;
+    var tm = setTimeout(function () { if (ac) ac.abort(); }, 9000);
+    fetch("https://api.rss2json.com/v1/api.json?rss_url=" + encodeURIComponent(u), ac ? { signal: ac.signal } : undefined)
+      .then(function (r) { return r.json(); })
+      .then(function (j) {
+        clearTimeout(tm);
+        if (!j || j.status !== "ok" || !j.items || !j.items.length) return cb(null);
+        cb(j.items.map(function (x) {
+          return { t: x.title, d: x.description || x.content, l: x.link, at: liveTime(x.pubDate),
+                   img: x.thumbnail || (x.enclosure && (x.enclosure.link || x.enclosure.url)) || "" };
+        }));
+      })
+      .catch(function () { clearTimeout(tm); cb(null); });
+  }
+  function liveFetchXml(u, cb) {
+    var ac = (typeof AbortController === "function") ? new AbortController() : null;
+    var tm = setTimeout(function () { if (ac) ac.abort(); }, 9000);
+    fetch("https://api.allorigins.win/raw?url=" + encodeURIComponent(u), ac ? { signal: ac.signal } : undefined)
+      .then(function (r) { return r.text(); })
+      .then(function (x) {
+        clearTimeout(tm);
+        var doc = new DOMParser().parseFromString(x, "text/xml");
+        var its = doc.getElementsByTagName("item"), out = [];
+        function g(n, k) { var e = n.getElementsByTagName(k)[0]; return e ? (e.textContent || "") : ""; }
+        for (var i = 0; i < its.length && i < 10; i++) {
+          var n = its[i], en = n.getElementsByTagName("enclosure")[0], mt = n.getElementsByTagName("media:thumbnail")[0];
+          out.push({ t: g(n, "title"), d: g(n, "description"), l: g(n, "link"), at: liveTime(g(n, "pubDate")),
+                     img: (mt && mt.getAttribute("url")) || (en && /image/.test(en.getAttribute("type") || "image") && en.getAttribute("url")) || "" });
+        }
+        cb(out.length ? out : null);
+      })
+      .catch(function () { clearTimeout(tm); cb(null); });
+  }
+  function liveTry(urls, i, cb) {
+    if (i >= urls.length) return cb(null);
+    liveFetchJson(urls[i], function (a) {
+      if (a) return cb(a);
+      liveFetchXml(urls[i], function (b) { if (b) cb(b); else liveTry(urls, i + 1, cb); });
+    });
+  }
+  function liveLoadCache() {
+    try {
+      var o = JSON.parse(localStorage.getItem(LIVE_KEY) || "null");
+      if (o && o.items && o.items.length && Date.now() - o.at < 3 * 86400000) { LIVE.items = o.items; LIVE.at = o.at; LIVE.ok = true; }
+    } catch (e) {}
+  }
+  function liveRefresh(force) {
+    if (LIVE.busy) return;
+    if (!force && LIVE.ok && Date.now() - LIVE.at < 5 * 60000) return;
+    if (typeof fetch !== "function") return;
+    if (!force && LIVE.failAt && Date.now() - LIVE.failAt < 60000) return;
+    LIVE.busy = true;
+    var left = LIVE_FEEDS.length, got = [];
+    LIVE_FEEDS.forEach(function (f) {
+      liveTry(f.urls, 0, function (items) {
+        (items || []).slice(0, 8).forEach(function (x) {
+          var title = liveText(x.t), link = String(x.l || "");
+          if (!title || !/^https?:\/\//.test(link)) return;
+          var desc = liveText(x.d); if (desc.length > 320) desc = desc.slice(0, 317) + "…";
+          var img = /^https:\/\//.test(x.img || "") ? x.img : "";
+          got.push({ id: "L" + liveHash(link), s: f.s, c: f.c, src: f.src, live: 1, link: link, img: img, at: x.at || 0, title: title, desc: desc });
+        });
+        if (--left > 0) return;
+        LIVE.busy = false;
+        if (!got.length) { LIVE.failAt = Date.now(); if (tab === "news" && !LIVE.ok) renderNewsTab(); return; }
+        LIVE.failAt = 0;
+        var seen = {}, list = got.filter(function (a) { if (seen[a.id]) return false; seen[a.id] = 1; return true; });
+        list.sort(function (a, b) { return b.at - a.at; });
+        LIVE.items = list.slice(0, 80); LIVE.at = Date.now(); LIVE.ok = true;
+        try { localStorage.setItem(LIVE_KEY, JSON.stringify({ at: LIVE.at, items: LIVE.items })); } catch (e) {}
+        var q = document.getElementById("newsQ");
+        var tm = document.getElementById("tabsMain"), st0 = tm ? tm.scrollTop : 0;
+        if (tab === "news" && !(q && (q.value || document.activeElement === q))) renderNewsTab();
+        else if (tab === "home") renderHome();
+        if (tm) tm.scrollTop = st0;
+      });
+    });
+  }
+  function liveArt(x) {
+    if (x.A) return x.A;
+    var tt = { ja: x.title, id: x.title, en: x.title }, bb = { ja: x.desc, id: x.desc, en: x.desc };
+    x.A = { id: x.id, s: x.s, c: x.c, live: 1, src: x.src, link: x.link, img: x.img, at: x.at, e: SRC[x.s].e, pal: ["#26306b", SRC[x.s].c], k: [x.title.slice(0, 40)], t: tt, b: bb };
+    return x.A;
+  }
+  function liveMix() {
+    var groups = {}, order = [];
+    LIVE.items.forEach(function (x) { if (!groups[x.src]) { groups[x.src] = []; order.push(x.src); } groups[x.src].push(liveArt(x)); });
+    var ja = lang === "ja"; order.sort(function (a, b) { return ((a === "NHK") === ja ? 0 : 1) - ((b === "NHK") === ja ? 0 : 1); });
+    var out = [], more = true, i = 0;
+    while (more) { more = false; order.forEach(function (k) { if (groups[k][i]) { out.push(groups[k][i]); more = true; } }); i++; }
+    return out;
+  }
   function artList() {
     var r = dayN() % ARTS.length;
-    return ARTS.slice(r).concat(ARTS.slice(0, r));
+    var st = ARTS.slice(r).concat(ARTS.slice(0, r));
+    return LIVE.ok ? liveMix().concat(st) : st;
   }
+  function liveOnly() { return LIVE.ok ? liveMix() : []; }
+  function srcName(a) { return a.live ? a.src : SRC[a.s].n[lang]; }
+  function liveAgo(a) {
+    if (!a.at) return a.src;
+    var m = Math.max(1, Math.round((Date.now() - a.at) / 60000));
+    var s = m < 60 ? T(m + "分前", m + " menit lalu", m + " min ago")[lang]
+          : m < 1440 ? T(Math.round(m / 60) + "時間前", Math.round(m / 60) + " jam lalu", Math.round(m / 60) + " h ago")[lang]
+          : T(Math.round(m / 1440) + "日前", Math.round(m / 1440) + " hari lalu", Math.round(m / 1440) + " d ago")[lang];
+    return a.src + " · " + s;
+  }
+  liveLoadCache();
+  setInterval(function () { if (!document.hidden && (tab === "news" || tab === "home")) liveRefresh(false); }, 60000);
   function agoOf(a) { return T("コラム", "Kolom", "Column")[lang]; }
   function likesOf(a) { return nlikes[a.id] ? 1 : 0; }
   function artNode(a, cls, overlay) {
     var d = el("div", "art" + (cls ? " " + cls : ""));
     d.style.background = "linear-gradient(135deg," + a.pal[0] + "," + a.pal[1] + ")";
-    d.appendChild(el("i", "ao1"));
-    d.appendChild(el("i", "ao2"));
-    d.appendChild(el("span", "aem", a.e));
+    var gi = [el("i", "ao1"), el("i", "ao2"), el("span", "aem", a.e)];
+    gi.forEach(function (n) { d.appendChild(n); });
+    if (a.img) {
+      var im = new Image();
+      im.onload = function () {
+        d.style.background = "#1b1b22 center / cover no-repeat url(\"" + a.img.replace(/"/g, "%22") + "\")";
+        gi.forEach(function (n) { if (n.parentNode) n.parentNode.removeChild(n); });
+      };
+      im.referrerPolicy = "no-referrer";
+      im.src = a.img;
+    }
     if (overlay) {
       var sc = el("div", "asc");
       sc.appendChild(el("div", "att", a.t[lang]));
@@ -6682,8 +6914,8 @@ button:active:not(:disabled) { transform: scale(.94); }
     var hd = el("div", "nfh");
     hd.appendChild(srcAv(a.s));
     var nm = el("div", "nfn");
-    nm.appendChild(el("div", "nn1", SRC[a.s].n[lang]));
-    nm.appendChild(el("div", "nn2", "M&M's NEWS"));
+    nm.appendChild(el("div", "nn1", srcName(a)));
+    nm.appendChild(el("div", "nn2", a.live ? liveAgo(a) : "M&M's NEWS"));
     hd.appendChild(nm);
     var mb = el("button", "nmore", "⋮");
     mb.type = "button";
@@ -6716,7 +6948,8 @@ button:active:not(:disabled) { transform: scale(.94); }
     return c;
   }
   function renderHomeNews(box) {
-    var l = artList().filter(function (a) { return !nhide[a.id]; }).slice(0, 3);
+    liveRefresh(false);
+    var l = (LIVE.ok ? liveOnly() : artList()).filter(function (a) { return !nhide[a.id]; }).slice(0, 3);
     if (!l.length) return;
     var hd = el("div", "nhhead");
     hd.appendChild(el("h2", "stl", T("ニュース", "Berita", "News")[lang]));
@@ -6736,12 +6969,17 @@ button:active:not(:disabled) { transform: scale(.94); }
       var h = el("div", "nfh");
       h.appendChild(srcAv(a.s));
       var nm = el("div", "nfn");
-      nm.appendChild(el("div", "nn1", SRC[a.s].n[lang]));
-      nm.appendChild(el("div", "nn2", "M&M's NEWS"));
+      nm.appendChild(el("div", "nn1", srcName(a)));
+      nm.appendChild(el("div", "nn2", a.live ? liveAgo(a) : "M&M's NEWS"));
       h.appendChild(nm);
       pn.appendChild(h);
       pn.appendChild(el("h2", "atit", a.t[lang]));
       paras(a.b[lang], pn);
+      if (a.live) {
+        var rl = el("a", "pill", T("元の記事を読む", "Baca selengkapnya", "Read the full story")[lang] + " ↗");
+        extLink(rl, a.link);
+        pn.appendChild(rl);
+      }
       var row = el("div", "btnrow");
       var rb = el("button", "pill", "🔎 " + T("このテーマをリサーチ", "Riset topik ini", "Research this topic")[lang]);
       rb.type = "button";
@@ -6754,10 +6992,11 @@ button:active:not(:disabled) { transform: scale(.94); }
       pn.appendChild(row);
     }, true);
   }
-  var NCATS = [["top", T("トップ", "Teratas", "Top")], ["ent", T("エンタメ", "Hiburan", "Entertainment")], ["sports", T("スポーツ", "Olahraga", "Sports")], ["tech", T("テクノロジー", "Teknologi", "Tech")], ["food", T("グルメ", "Kuliner", "Food")], ["travel", T("トラベル", "Wisata", "Travel")], ["nature", T("ネイチャー", "Alam", "Nature")], ["music", T("音楽", "Musik", "Music")], ["life", T("ライフ", "Gaya hidup", "Life")], ["saved", T("きになる", "Tersimpan", "Saved")], ["info", T("お知らせ", "Info", "Notices")]];
+  var NCATS = [["top", T("トップ", "Teratas", "Top")], ["id", T("インドネシア", "Indonesia", "Indonesia")], ["jp", T("日本", "Jepang", "Japan")], ["world", T("国際", "Dunia", "World")], ["sports", T("スポーツ", "Olahraga", "Sports")], ["tech", T("テクノロジー", "Teknologi", "Tech")], ["ent", T("エンタメ", "Hiburan", "Entertainment")], ["column", T("コラム", "Kolom", "Columns")], ["saved", T("きになる", "Tersimpan", "Saved")], ["info", T("お知らせ", "Info", "Notices")]];
   function renderNewsTab() {
     var box = $("tab-news");
     box.textContent = "";
+    liveRefresh(false);
     var sr = el("div", "nsearch");
     var sb = el("div", "nsbox");
     var inp = el("input");
@@ -6803,8 +7042,29 @@ button:active:not(:disabled) { transform: scale(.94); }
       return;
     }
     var list = all.filter(function (a) { return a.s !== "info"; });
+    var pool = LIVE.ok ? list.filter(function (a) { return a.live; }) : list;
     if (newsCat === "saved") list = list.filter(function (a) { return nlikes[a.id]; });
-    else if (newsCat !== "top") list = list.filter(function (a) { return a.s === newsCat; });
+    else if (newsCat === "column") list = list.filter(function (a) { return !a.live; });
+    else if (newsCat === "id" || newsCat === "jp" || newsCat === "world") list = pool.filter(function (a) { return a.c === newsCat; });
+    else if (newsCat === "top") list = pool;
+    else list = pool.filter(function (a) { return a.s === newsCat; });
+    if (!LIVE.ok && newsCat !== "column" && newsCat !== "saved") {
+      var ld = el("p", "empty", LIVE.busy ? T("ニュースを読み込み中…", "Memuat berita…", "Loading news…")[lang] : T("ニュースを取得できませんでした。", "Berita belum bisa dimuat. Periksa internet lalu tarik ulang.", "Couldn't load news. Check your connection and try again.")[lang]);
+      box.appendChild(ld);
+      var rb2 = el("button", "pill", "⟳ " + T("再読み込み", "Muat ulang", "Retry")[lang]); rb2.type = "button";
+      rb2.addEventListener("click", function () { liveRefresh(true); renderNewsTab(); });
+      box.appendChild(rb2);
+      return;
+    }
+    if (LIVE.ok && newsCat !== "column" && newsCat !== "saved") {
+      var up = el("div", "nupd");
+      var d1 = new Date(LIVE.at);
+      up.appendChild(el("span", null, T("更新 ", "Diperbarui ", "Updated ")[lang] + ("0" + d1.getHours()).slice(-2) + ":" + ("0" + d1.getMinutes()).slice(-2) + " · NHK · ANTARA · BBC · Al Jazeera"));
+      var ur = el("button", "nurf", "⟳"); ur.type = "button"; ur.setAttribute("aria-label", "refresh");
+      ur.addEventListener("click", function () { LIVE.at = 0; liveRefresh(true); ur.classList.add("spin"); });
+      up.appendChild(ur);
+      box.appendChild(up);
+    }
     if (newsCat === "top" && list.length >= 3) {
       var top = list[0];
       var hero = el("div", "nhero");
@@ -6815,7 +7075,7 @@ button:active:not(:disabled) { transform: scale(.94); }
       var hb = el("button", "nhbody");
       hb.type = "button";
       hb.appendChild(artNode(top, "thumb"));
-      hb.appendChild(el("span", "nhs", SRC[top.s].n[lang]));
+      hb.appendChild(el("span", "nhs", srcName(top)));
       hb.addEventListener("click", function () { openArticle(top); });
       hero.appendChild(hb);
       list.slice(1, 3).forEach(function (a) {
@@ -6863,7 +7123,7 @@ button:active:not(:disabled) { transform: scale(.94); }
   function realNewsCard(box) {
     var lc = el("div", "card newslinks");
     lc.appendChild(el("div", "nt", L("realNews")));
-    lc.appendChild(el("div", "nb", T("上の記事はアプリ内のコラムです。本物のニュースは外部サイトで読めます。", "Artikel di atas adalah kolom dalam aplikasi. Berita sungguhan bisa dibaca di situs luar.", "The articles above are in-app columns. Read real news on outside sites.")[lang]));
+    lc.appendChild(el("div", "nb", T("NHK・ANTARAなどの記事は自動で更新されます。続きは各サイトで読めます。", "Berita dari NHK dan ANTARA diperbarui otomatis. Kolom lain dibuat dalam aplikasi; selengkapnya ada di situs luar.", "News from NHK and ANTARA updates automatically. Other columns are written in the app; read more on the outside sites.")[lang]));
     [["Google ニュース", "https://news.google.com/home?hl=ja&gl=JP&ceid=JP:ja"], ["NHK NEWS WEB", "https://www3.nhk.or.jp/news/"], ["NHK やさしい日本語", "https://www3.nhk.or.jp/news/easy/"]].forEach(function (x) {
       var a = el("a", "pill", x[0]);
       extLink(a, x[1]);
@@ -8952,14 +9212,16 @@ button:active:not(:disabled) { transform: scale(.94); }
     }
     function drop(p, r0, c0) {
       p.s.forEach(function (x) { grid[r0 + x[0]][c0 + x[1]] = p.col; });
-      p.used = true; score += p.s.length;
+      p.used = true; score += p.s.length; pop(); buzz(8);
       var rows = [], cols = [], i, j;
       for (i = 0; i < N; i++) { if (grid[i].every(function (v) { return v; })) rows.push(i); if (grid.every(function (row) { return row[i]; })) cols.push(i); }
       var n = rows.length + cols.length;
       rows.forEach(function (r) { for (j = 0; j < N; j++) cells[r * N + j].classList.add("clr"); });
       cols.forEach(function (c) { for (j = 0; j < N; j++) cells[j * N + c].classList.add("clr"); });
-      if (n) { score += 10 * n * n; buzz(n > 1 ? [12, 30, 12] : 12); }
+      if (n) { score += 10 * n * n; buzz(n > 1 ? [12, 30, 12] : 12); ping(); }
       paint();
+      p.s.forEach(function (x) { cells[(r0 + x[0]) * N + c0 + x[1]].classList.add("bkpop"); });
+      sc.classList.remove("bump"); void sc.offsetWidth; sc.classList.add("bump");
       cells.forEach(function (x, k) { if (x.classList.contains("clr")) x.className = "bkc clr bk" + 8; });
       setTimeout(function () {
         rows.forEach(function (r) { for (j = 0; j < N; j++) grid[r][j] = 0; });
@@ -9370,8 +9632,27 @@ button:active:not(:disabled) { transform: scale(.94); }
       buzz(kind === "win" ? [12, 40, 12] : 20);
       gv.t = setTimeout(function () { gResult(score, 0, T("チェス", "Catur", "Chess")[lang] + " · " + lvName + " · " + msg); }, 1600);
     }
+    function chessSnd(cap) {
+      if (typeof soundOn !== "undefined" && (!soundOn || mute)) return;
+      tone(cap ? 300 : 520, 0, 0.08, 0.07); if (cap) tone(180, 0.05, 0.12, 0.08);
+    }
+    function fly(m, cap) {
+      try {
+        var from = sqs[m[0] + "," + m[1]], to = sqs[m[2] + "," + m[3]], g = to.textContent;
+        if (!g || !from) return;
+        var br = bd.getBoundingClientRect(), fr = from.getBoundingClientRect(), tr = to.getBoundingClientRect();
+        var o = el("div", "chfly " + (to.classList.contains("pw") ? "pw" : "pb"), g);
+        o.style.width = tr.width + "px"; o.style.height = tr.height + "px";
+        o.style.left = (fr.left - br.left) + "px"; o.style.top = (fr.top - br.top) + "px";
+        to.classList.add("hid"); bd.appendChild(o);
+        void o.offsetWidth;
+        o.style.transform = "translate(" + (tr.left - fr.left) + "px," + (tr.top - fr.top) + "px)";
+        setTimeout(function () { to.classList.remove("hid"); if (o.parentNode) o.parentNode.removeChild(o); }, 200);
+      } catch (e) {}
+    }
     function after() {
       paint();
+      if (animNext) { fly(last, lastCap); animNext = false; }
       var k = CH.key(st); reps[k] = (reps[k] || 0) + 1;
       var stt = CH.status(st);
       if (stt === "mate") { finish(st.w === human ? "loss" : "win", T("チェックメイト", "Skakmat", "Checkmate")[lang]); return; }
@@ -9382,7 +9663,9 @@ button:active:not(:disabled) { transform: scale(.94); }
       turnMsg();
       if (st.w !== human) { locked = true; gv.t = setTimeout(aiMove, 380); } else locked = false;
     }
+    var animNext = false, lastCap = false;
     function doMove(m) {
+      lastCap = !!(st.b[m[2]][m[3]] || m[5] === "e"); animNext = true; chessSnd(lastCap); if (lastCap) buzz(10);
       stack.push({ st: st, last: last, caps: { w: caps.w.slice(), b: caps.b.slice() }, reps: JSON.stringify(reps) });
       var mover = st.w ? "w" : "b", ns = CH.apply(st, m);
       if (ns.cap) caps[mover].push(ns.cap);
