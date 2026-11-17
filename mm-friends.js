@@ -60,7 +60,7 @@
   async function ensureProfile() {
     var pr = await fs.collection("profiles").doc(me).get();
     if (pr.exists) { var d = pr.data(); myName = d.name; myCode = d.code; names[me] = myName; return; }
-    var u = ctx.user, base = ((u.displayName || (u.email || "").split("@")[0] || "Aku") + "").trim().slice(0, 24) || "Aku";
+    var u = ctx.user, base = ((u.displayName || (u.email || "").split("@")[0] || (u.phoneNumber ? "Pengguna " + u.phoneNumber.slice(-4) : "Aku")) + "").trim().slice(0, 24) || "Aku";
     var code = "";
     for (var t = 0; t < 8; t++) {
       var c = ""; for (var i = 0; i < 8; i++) c += AL[Math.floor(Math.random() * AL.length)];

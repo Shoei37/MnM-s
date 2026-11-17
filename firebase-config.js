@@ -1,11 +1,10 @@
-/* Isi dengan konfigurasi Web App dari Firebase Console
-   (Project settings → Your apps → Web app → "firebaseConfig").
-   Selama masih berisi "ISI_", aplikasi berjalan tanpa login (data hanya di perangkat). */
+/* Konfigurasi Web App Firebase (proyek mnm-s-b6d2f).
+   Nilai ini memang publik; keamanan data diatur oleh firestore.rules. */
 window.MM_FIREBASE = {
-  apiKey: "ISI_API_KEY",
-  authDomain: "ISI_PROJECT_ID.firebaseapp.com",
-  projectId: "ISI_PROJECT_ID",
-  storageBucket: "ISI_PROJECT_ID.appspot.com",
-  messagingSenderId: "ISI_SENDER_ID",
-  appId: "ISI_APP_ID"
+  apiKey: "AIzaSyDgpbWOCeAcLaCG-X49aub_bO3a0qgantg",
+  authDomain: "mnm-s-b6d2f.firebaseapp.com",
+  projectId: "mnm-s-b6d2f",
+  storageBucket: "mnm-s-b6d2f.firebasestorage.app",
+  messagingSenderId: "621803885537",
+  appId: "1:621803885537:web:193761dda59b538701f8a0"
 };
