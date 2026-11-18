@@ -2,7 +2,13 @@
    Hanya aktif di versi website/Play Store setelah masuk (butuh window.mmCtx dari mm-backend.js). */
 (function () {
   "use strict";
-  var AL = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789", STK = ["😊", "😂", "🥰", "😭", "👍", "🙏", "🎉", "❤️", "😴", "🤔", "🔥", "👋"];
+  var AL = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789", STK = ["😊", "😂", "🥰", "😭", "👍", "🙏", "🎉", "❤️", "😴", "🤔", "🔥", "👋"],
+    PACKS = [
+      { i: "😊", l: STK.concat(["😎", "🥳", "😍", "😅", "🤣", "😇", "🙌", "💪"]) },
+      { i: "❤️", l: ["❤️", "🧡", "💛", "💚", "💙", "💜", "🤍", "💖", "💕", "😘", "😻", "💌", "🌹", "🥺", "🫶", "💞"] },
+      { i: "🐱", l: ["🐱", "🐶", "🐰", "🐻", "🐼", "🐨", "🦊", "🐸", "🐧", "🐥", "🦄", "🐷", "🐵", "🐙", "🦋", "🐢"] },
+      { i: "🍜", l: ["🍜", "🍣", "🍙", "🍛", "🍱", "🍰", "🍩", "🍓", "🍺", "☕", "🧋", "🍕", "🍔", "🍟", "🥟", "🍡"] }
+    ];
   var ctx = null, fs = null, FV = null, me = null, myName = "", myCode = "", started = false;
   var friends = [], reqIn = [], reqOut = [], names = {}, unsubs = [], chatUn = null, chat = null, view = "none", root = null;
 
@@ -49,6 +55,17 @@
     ".mfr .mfsheet .mfpill{text-align:center}.mfr .mfwarn{color:#d93a4a}" +
     ".mfr .mfok{color:#0a8f43}.mfr .mfmsg{font-size:13px;min-height:16px}" +
     ".mfrow.mfent{} .mfent .mfbadge{min-width:20px;height:20px;border-radius:10px;background:var(--badge,#f0456a);color:#fff;font-size:11px;font-weight:700;display:grid;place-items:center;padding:0 6px}" +
+    ".mfr .mftabs{display:flex;gap:4px;background:var(--tint,#eef0f7);border-radius:12px;padding:3px;margin-top:6px}" +
+    ".mfr .mftabs button{flex:1;border:0;background:none;border-radius:10px;padding:9px 6px;font-size:14px;font-weight:700;cursor:pointer;color:var(--muted,#6b7480)}" +
+    ".mfr .mftabs button[aria-selected=true]{background:var(--card,#fff);color:var(--fg,#1d2530);box-shadow:0 1px 3px rgba(0,0,0,.12)}" +
+    ".mfr .mfqr{display:grid;place-items:center;padding:10px 0 2px}.mfr .mfqr svg{border-radius:10px;border:1px solid var(--card-line,#dfe3ef)}" +
+    ".mfr .mfcam{position:relative;border-radius:14px;overflow:hidden;background:#000;aspect-ratio:1/1;margin-top:8px}.mfr .mfcam video{width:100%;height:100%;object-fit:cover}" +
+    ".mfr .mfcam i{position:absolute;inset:18%;border:3px solid rgba(255,255,255,.9);border-radius:16px;box-shadow:0 0 0 999px rgba(0,0,0,.35);pointer-events:none}" +
+    ".mfr .mfbb.img{padding:3px;background:transparent!important}.mfr .mfbb.img img{display:block;max-width:100%;max-height:260px;border-radius:14px;cursor:zoom-in}" +
+    ".mfr .mfview{position:fixed;inset:0;z-index:9200;background:rgba(0,0,0,.92);display:grid;place-items:center}.mfr .mfview img{max-width:96vw;max-height:92vh}" +
+    ".mfr .mfpk{position:absolute;left:0;right:0;bottom:0;max-width:440px;margin:0 auto;z-index:5;background:var(--bar,#f7f8fa);border-radius:18px 18px 0 0;box-shadow:0 -6px 24px rgba(0,0,0,.18);padding:8px 10px calc(10px + env(safe-area-inset-bottom,0px))}" +
+    ".mfr .mfpk .mfpt{display:flex;gap:4px;border-bottom:1px solid var(--bar-line,#dde1e7);padding-bottom:6px}.mfr .mfpk .mfpt button{border:0;background:none;font-size:22px;min-width:44px;min-height:40px;border-radius:10px;cursor:pointer}.mfr .mfpk .mfpt button[aria-selected=true]{background:var(--tint,#eef0f7)}" +
+    ".mfr .mfpk .mfstk{border:0;max-height:34vh;overflow-y:auto;padding:8px 2px 0;background:none}.mfr .mfpk .mfstk button{font-size:36px;min-width:56px;min-height:56px}" +
     ".mfto{position:fixed;left:50%;bottom:90px;transform:translateX(-50%);z-index:9100;background:#2a2150;color:#fff;border-radius:999px;padding:10px 16px;font:14px system-ui,sans-serif;max-width:86vw}";
 
   function toast(t) { var x = $("div", "mfto", t); document.body.appendChild(x); setTimeout(function () { x.remove(); }, 2600); }
@@ -130,12 +147,12 @@
     p.appendChild(h); root.appendChild(p); document.body.appendChild(root);
     return p;
   }
-  function closeAll() { if (chatUn) { chatUn(); chatUn = null; } chat = null; view = "none"; if (root) { root.remove(); root = null; } syncEntry(); }
-  function refresh() { syncEntry(); if (view === "list") renderList(); else if (view === "chat" && chat) renderChatHead(); }
+  function closeAll() { stopCam(); if (chatUn) { chatUn(); chatUn = null; } chat = null; view = "none"; if (root) { root.remove(); root = null; } syncEntry(); }
+  function refresh() { syncEntry(); if (view === "list" && !(addTab === "qr" && (cam || scanBusy))) renderList(); else if (view === "chat" && chat) renderChatHead(); }
 
   /* ---------- list ---------- */
-  function openList(prefill) { addNote = null; view = "list"; if (chatUn) { chatUn(); chatUn = null; } chat = null; renderList(prefill); }
-  var addDraft = "", addNote = null;
+  function openList(prefill) { stopCam(); addNote = null; view = "list"; if (chatUn) { chatUn(); chatUn = null; } chat = null; renderList(prefill); }
+  var addDraft = "", addNote = null, addTab = "id", cam = null, scanNote = null, scanBusy = false;
   function renderList(prefill) {
     if (typeof prefill === "string") addDraft = prefill;
     var keep = root && root.querySelector("#mfCode") ? root.querySelector("#mfCode").value : null;
@@ -157,9 +174,22 @@
       var n = window.prompt("Nama tampil (maks 24 huruf):", myName); if (n == null) return; n = n.trim().slice(0, 24); if (!n) return;
       try { await fs.collection("profiles").doc(me).set({ name: n, code: myCode, at: Date.now() }); myName = n; names[me] = n; renderList(); toast("Nama diperbarui."); } catch (e) { toast("Gagal mengubah nama."); }
     };
-    br.appendChild(sh); br.appendChild(rn); me1.appendChild(br); body.appendChild(me1);
+    br.appendChild(sh); br.appendChild(rn);
+    if ((window.MM_FIREBASE || {}).vapidKey && "Notification" in window && "serviceWorker" in navigator) {
+      var nb = $("button", "mfpill", Notification.permission === "granted" ? "🔔 Notifikasi aktif" : "🔔 Aktifkan notifikasi"); nb.type = "button"; nb.id = "mfPush"; nb.onclick = enablePush; br.appendChild(nb);
+    }
+    me1.appendChild(br);
+    try { if (window.mmQR) { var qb = $("div", "mfqr"); qb.id = "mfMyQr"; qb.appendChild(window.mmQR.svg(location.origin + location.pathname + "?add=" + myCode, 168)); me1.appendChild(qb); } } catch (e) {}
+    body.appendChild(me1);
 
     var ad = $("div", "mfc"); ad.appendChild($("div", "mfs", "Tambah teman"));
+    var tb = $("div", "mftabs"); tb.setAttribute("role", "tablist");
+    [["id", "Cari ID"], ["qr", "Pindai QR"]].forEach(function (x) {
+      var b = $("button", null, x[1]); b.type = "button"; b.id = "mfTab" + x[0]; b.setAttribute("role", "tab"); b.setAttribute("aria-selected", addTab === x[0] ? "true" : "false");
+      b.onclick = function () { stopCam(); scanBusy = false; scanNote = null; addTab = x[0]; renderList(); }; tb.appendChild(b);
+    });
+    ad.appendChild(tb);
+    if (addTab === "qr") { renderScanTab(ad); body.appendChild(ad); renderRest(body); return; }
     var inp = $("input", "mfin"); inp.id = "mfCode"; inp.placeholder = "Kode teman, mis. MM-4K9Q2XAB"; inp.autocapitalize = "characters"; inp.autocomplete = "off"; inp.value = addDraft; ad.appendChild(inp);
     var msg = $("div", "mfmsg"); msg.id = "mfMsg"; ad.appendChild(msg);
     if (addNote) { msg.className = "mfmsg " + addNote.c; msg.textContent = addNote.t; }
@@ -171,7 +201,60 @@
       go.disabled = false;
     };
     ad.appendChild(go); body.appendChild(ad);
-
+    renderRest(body);
+    if (hadFocus) { var ci = root.querySelector("#mfCode"); if (ci) { ci.focus(); try { ci.setSelectionRange(ci.value.length, ci.value.length); } catch (e) {} } }
+  }
+  function loadScript(src) { return new Promise(function (ok, no) { var s = document.createElement("script"); s.src = src; s.onload = ok; s.onerror = function () { no(new Error("Gagal memuat " + src)); }; document.head.appendChild(s); }); }
+  /* Notifikasi push (FCM web). Aktif hanya jika vapidKey diisi di firebase-config.js dan Cloud Function sudah dipasang. */
+  async function enablePush() {
+    try {
+      var cfg = window.MM_FIREBASE || {};
+      var perm = await Notification.requestPermission(); if (perm !== "granted") { toast("Izin notifikasi ditolak."); return; }
+      if (!(ctx.fb.messaging)) await loadScript("https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging-compat.js");
+      var reg = await navigator.serviceWorker.ready;
+      var tok = await ctx.fb.messaging().getToken({ vapidKey: cfg.vapidKey, serviceWorkerRegistration: reg });
+      if (!tok) throw new Error("Token kosong");
+      await fs.collection("fcmTokens").doc(me).set({ tokens: FV.arrayUnion(tok), at: Date.now() }, { merge: true });
+      toast("Notifikasi aktif."); if (view === "list") renderList();
+    } catch (e) { toast("Notifikasi gagal diaktifkan."); }
+  }
+  function stopCam() { if (cam) { try { cam.stop(); } catch (e) {} cam = null; } }
+  function codeFromText(s) {
+    s = String(s || "").trim(); var m = /[?&]add=([A-Za-z0-9-]+)/.exec(s), raw = m ? m[1] : s;
+    if (!/^(MM-?)?[A-Za-z0-9]{8}$/i.test(raw)) return "";
+    var c = normCode(raw); return c.length === 8 ? c : "";
+  }
+  async function addByCode(raw, msg) {
+    try {
+      var uid = await lookup(raw);
+      if (!window.confirm("Kirim permintaan teman ke " + nameOf(uid) + "?")) return;
+      var r = await sendRequest(uid); addNote = { c: "mfok", t: r };
+    } catch (e) { addNote = { c: "mfwarn", t: (e && e.message && e.message.indexOf("Missing or insufficient") < 0) ? e.message : "Gagal. Periksa koneksi lalu coba lagi." }; }
+    addTab = "id"; scanBusy = false; scanNote = null; if (view === "list") renderList();
+  }
+  function renderScanTab(ad) {
+    var msg = $("div", "mfmsg"); msg.id = "mfScanMsg"; if (scanNote) { msg.className = "mfmsg mfwarn"; msg.textContent = scanNote; } var info = $("div", "mfsub", "Arahkan kamera ke QR teman. Permintaan terkirim otomatis setelah kamu konfirmasi."); info.style.marginTop = "8px";
+    ad.appendChild(info);
+    var box = $("div"); ad.appendChild(box); ad.appendChild(msg);
+    var start = $("button", "mfpill mfpri", "Buka kamera"); start.type = "button"; start.id = "mfCam"; start.style.marginTop = "8px"; box.appendChild(start);
+    start.onclick = async function () {
+      function warn(x) { scanNote = x; msg.className = "mfmsg mfwarn"; msg.textContent = x; }
+      if (!window.mmQR || !navigator.mediaDevices) { warn("Kamera tidak tersedia di browser ini. Pakai tab Cari ID."); return; }
+      start.disabled = true; box.textContent = ""; scanNote = null; msg.textContent = ""; scanBusy = true;
+      var cw = $("div", "mfcam"), v = $("video"); cw.appendChild(v); cw.appendChild($("i")); box.appendChild(cw);
+      try {
+        cam = await window.mmQR.scan(v, function (txt) {
+          cam = null; scanBusy = false; var c = codeFromText(txt);
+          if (!c) { warn("QR ini bukan kode M&M's."); box.textContent = ""; box.appendChild(start); start.disabled = false; return; }
+          addByCode(c);
+        });
+      } catch (e) {
+        scanBusy = false; box.textContent = ""; box.appendChild(start); start.disabled = false;
+        warn((e && e.name === "NotAllowedError") ? "Izin kamera ditolak. Aktifkan lewat pengaturan browser." : ((e && e.message) || "Kamera tidak bisa dibuka."));
+      }
+    };
+  }
+  function renderRest(body) {
     if (reqIn.length) {
       body.appendChild($("div", "mfs", "Permintaan masuk (" + reqIn.length + ")"));
       reqIn.forEach(function (r) {
@@ -197,7 +280,6 @@
         var x = $("button", "mfpill", "Batal"); x.type = "button"; x.onclick = async function () { try { await fs.collection("requests").doc(r.id).delete(); } catch (e) {} }; c.appendChild(x); body.appendChild(c); });
       reqOut.forEach(function (r) { loadName(r.to).then(function () { }); });
     }
-    if (hadFocus) { var ci = root.querySelector("#mfCode"); if (ci) { ci.focus(); try { ci.setSelectionRange(ci.value.length, ci.value.length); } catch (e) {} } }
   }
 
   /* ---------- chat ---------- */
@@ -216,28 +298,71 @@
     var mb = $("button", "mfb", "⋮"); mb.type = "button"; mb.id = "mfMenu"; mb.setAttribute("aria-label", "Menu"); mb.onclick = chatMenu;
     var p = mount(nameOf(chat.o), function () { openList(); }, mb);
     var ml = $("div", "mfmsgs"); ml.id = "mfMsgs"; p.appendChild(ml);
+    ml.addEventListener("click", function () { if (chat && chat.stk) { chat.stk = false; renderCompose(); } });
     var cz = $("div"); cz.id = "mfComp"; p.appendChild(cz); chat.ck = String((curFriend() || chat.f).blocked || ""); renderCompose(); renderMsgs();
   }
   function renderCompose() {
     var cz = root && root.querySelector("#mfComp"); if (!cz) return; var f = curFriend() || chat.f; cz.textContent = "";
     if (f.blocked) { var n = $("div", "mfnote", f.blocked === me ? "Kamu memblokir teman ini. Buka blokir lewat menu ⋮ untuk melanjutkan." : "Tidak bisa mengirim pesan ke teman ini."); n.id = "mfBlocked"; cz.appendChild(n); return; }
-    if (chat.stk) { var s = $("div", "mfstk"); STK.forEach(function (e) { var b = $("button", null, e); b.type = "button"; b.onclick = function () { chat.stk = false; send(e, "sticker"); renderCompose(); }; s.appendChild(b); }); cz.appendChild(s); }
-    var c = $("div", "mfcmp"), sb = $("button", "mfb", "😊"); sb.type = "button"; sb.id = "mfStk"; sb.onclick = function () { chat.stk = !chat.stk; renderCompose(); };
+    if (chat.stk) {
+      var pk = $("div", "mfpk"); pk.id = "mfPack"; var pt = $("div", "mfpt"), gs = $("div", "mfstk"); pt.setAttribute("role", "tablist");
+      function fill() { gs.textContent = ""; PACKS[chat.pk || 0].l.forEach(function (e) { var b = $("button", null, e); b.type = "button"; b.onclick = function () { chat.stk = false; send(e, "sticker"); renderCompose(); }; gs.appendChild(b); }); pt.querySelectorAll("button").forEach(function (x, n) { x.setAttribute("aria-selected", n === (chat.pk || 0) ? "true" : "false"); }); }
+      PACKS.forEach(function (pc, n) { var b = $("button", null, pc.i); b.type = "button"; b.setAttribute("role", "tab"); b.onclick = function () { chat.pk = n; fill(); }; pt.appendChild(b); });
+      pk.appendChild(pt); pk.appendChild(gs); fill(); cz.appendChild(pk);
+    }
+    var c = $("div", "mfcmp"), pb = $("button", "mfb", "📷"); pb.type = "button"; pb.id = "mfPhoto"; pb.setAttribute("aria-label", "Kirim foto");
+    var fi = $("input"); fi.type = "file"; fi.accept = "image/*"; fi.id = "mfFile"; fi.hidden = true; fi.style.display = "none";
+    fi.onchange = function () { var f = fi.files && fi.files[0]; fi.value = ""; if (f) sendImage(f); };
+    pb.onclick = function () { fi.click(); };
+    var sb = $("button", "mfb", "😊"); sb.type = "button"; sb.id = "mfStk"; sb.onclick = function () { chat.stk = !chat.stk; renderCompose(); };
     var i = $("input"); i.id = "mfText"; i.maxLength = 1000; i.placeholder = "Ketik pesan"; i.enterKeyHint = "send";
     var go = $("button", "mfpill mfpri", "Kirim"); go.type = "button"; go.id = "mfGo";
     function fire() { var v = i.value.trim(); if (!v) return; i.value = ""; send(v, "text"); }
     go.onclick = fire; i.addEventListener("keydown", function (e) { if (e.key === "Enter") fire(); });
-    c.appendChild(sb); c.appendChild(i); c.appendChild(go); cz.appendChild(c);
+    c.appendChild(pb); c.appendChild(fi); c.appendChild(sb); c.appendChild(i); c.appendChild(go); cz.appendChild(c);
   }
   async function send(text, kind) {
     if (!chat) return;
     var pid = chat.id, now = Date.now(), ref = fs.collection("friends").doc(pid), mr = ref.collection("msgs").doc();
     try {
       var b = fs.batch();
-      b.set(mr, { from: me, text: String(text).slice(0, 1000), kind: kind, at: FV.serverTimestamp() });
-      b.update(ref, { lastText: kind === "sticker" ? text : String(text).slice(0, 80), lastAt: FV.serverTimestamp(), lastFrom: me, ["read." + me]: now });
+      b.set(mr, { from: me, text: kind === "image" ? String(text) : String(text).slice(0, 1000), kind: kind, at: FV.serverTimestamp() });
+      b.update(ref, { lastText: kind === "sticker" ? text : (kind === "image" ? "📷 Foto" : String(text).slice(0, 80)), lastAt: FV.serverTimestamp(), lastFrom: me, ["read." + me]: now });
       await b.commit();
     } catch (e) { toast("Pesan gagal terkirim."); }
+  }
+  /* Kompres foto di HP sebelum dikirim: sisi terpanjang <= 1024 px, JPEG, <= ~420 KB */
+  function compressImage(file) {
+    return new Promise(function (ok, no) {
+      var url = URL.createObjectURL(file), im = new Image();
+      im.onload = function () {
+        try {
+          var side = 1024, q = 0.72, out = "";
+          for (var n = 0; n < 6; n++) {
+            var sc = Math.min(1, side / Math.max(im.naturalWidth, im.naturalHeight)), cv = document.createElement("canvas");
+            cv.width = Math.max(1, Math.round(im.naturalWidth * sc)); cv.height = Math.max(1, Math.round(im.naturalHeight * sc));
+            var cx = cv.getContext("2d"); cx.fillStyle = "#fff"; cx.fillRect(0, 0, cv.width, cv.height); cx.drawImage(im, 0, 0, cv.width, cv.height);
+            out = cv.toDataURL("image/jpeg", q);
+            if (out.length <= 420000) break;
+            if (q > 0.5) q -= 0.1; else side = Math.round(side * 0.78);
+          }
+          URL.revokeObjectURL(url); out.length <= 560000 ? ok(out) : no(new Error("Foto terlalu besar."));
+        } catch (e) { no(e); }
+      };
+      im.onerror = function () { URL.revokeObjectURL(url); no(new Error("File bukan gambar.")); };
+      im.src = url;
+    });
+  }
+  async function sendImage(file) {
+    if (!chat) return;
+    if (!/^image\//.test(file.type || "")) { toast("Pilih file gambar."); return; }
+    toast("Mengompres foto…");
+    try { var d = await compressImage(file); await send(d, "image"); }
+    catch (e) { toast((e && e.message) || "Foto gagal dikirim."); }
+  }
+  function viewImage(src) {
+    var v = $("div", "mfview"); v.setAttribute("role", "dialog"); var im = $("img"); im.src = src; im.alt = "Foto"; v.appendChild(im);
+    v.onclick = function () { v.remove(); }; root.appendChild(v);
   }
   function renderMsgs() {
     var ml = root && root.querySelector("#mfMsgs"); if (!ml || !chat) return;
@@ -245,7 +370,8 @@
     var f = curFriend() || chat.f, rd = (f.read || {})[chat.o] || 0;
     chat.msgs.forEach(function (m) {
       var dk = dayKey(m.at); if (dk !== last) { last = dk; ml.appendChild($("div", "mfday", dayLabel(m.at))); }
-      var mine = m.from === me, row = $("div", "mfm " + (mine ? "me" : "them")), bb = $("div", "mfbb" + (m.kind === "sticker" ? " stk" : ""), m.text); bb.dataset.id = m.id;
+      var mine = m.from === me, row = $("div", "mfm " + (mine ? "me" : "them")), bb = $("div", "mfbb" + (m.kind === "sticker" ? " stk" : "") + (m.kind === "image" ? " img" : ""), m.kind === "image" ? "" : m.text); bb.dataset.id = m.id;
+      if (m.kind === "image" && /^(data:image\/jpeg;base64,|https:\/\/firebasestorage\.googleapis\.com\/)/.test(m.text || "")) { var pic = $("img"); pic.src = m.text; pic.alt = "Foto"; pic.loading = "lazy"; pic.onload = function () { if (near) ml.scrollTop = ml.scrollHeight; }; pic.onclick = function (e) { e.stopPropagation(); viewImage(m.text); }; bb.appendChild(pic); }
       var t = $("div", "mft", (mine && ms(m.at) <= rd ? "Dibaca\n" : "") + hhmm(m.at)); t.style.whiteSpace = "pre-line";
       if (mine) { row.appendChild(t); row.appendChild(bb); bb.style.cursor = "pointer"; bb.onclick = function () { if (window.confirm("Tarik pesan ini?")) fs.collection("friends").doc(chat.id).collection("msgs").doc(m.id).delete().catch(function () { toast("Gagal menarik pesan."); }); }; } else { row.appendChild(bb); row.appendChild(t); }
       ml.appendChild(row);
@@ -265,7 +391,7 @@
   async function reportFlow() {
     var why = window.prompt("Alasan laporan (spam / pelecehan / lainnya):", "spam"); if (why == null) return;
     var note = (window.prompt("Catatan singkat (opsional):", "") || "").slice(0, 300);
-    var sample = chat.msgs.slice(-10).map(function (m) { return { from: m.from, text: String(m.text).slice(0, 200), at: ms(m.at) }; });
+    var sample = chat.msgs.slice(-10).map(function (m) { return { from: m.from, text: m.kind === "image" ? "[foto]" : String(m.text).slice(0, 200), at: ms(m.at) }; });
     try { await fs.collection("reports").add({ by: me, target: chat.o, pair: chat.id, reason: String(why).slice(0, 40), note: note, sample: sample, at: Date.now() }); toast("Laporan terkirim. Terima kasih."); } catch (e) { toast("Gagal mengirim laporan."); }
   }
 

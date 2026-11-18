@@ -69,11 +69,23 @@ service cloud.firestore {
           && get(/databases/$(database)/documents/friends/$(pair)).data.blocked == null
           && request.resource.data.keys().hasOnly(['from', 'text', 'kind', 'at'])
           && request.resource.data.from == request.auth.uid
-          && request.resource.data.text is string && request.resource.data.text.size() <= 1000
-          && request.resource.data.kind in ['text', 'sticker']
+          && request.resource.data.text is string
+          && request.resource.data.kind in ['text', 'sticker', 'image']
+          && (request.resource.data.kind == 'image'
+              ? ((request.resource.data.text.size() <= 600000 && request.resource.data.text.matches('^data:image/jpeg;base64,.*'))
+                 || (request.resource.data.text.size() <= 1500 && request.resource.data.text.matches('^https://firebasestorage.googleapis.com/.*')))
+              : request.resource.data.text.size() <= 1000)
           && request.resource.data.at == request.time;
         allow delete: if request.auth != null && resource.data.from == request.auth.uid;
       }
+    }
+
+    // Token notifikasi push (FCM). Hanya pemilik yang boleh menulis; Cloud Function membacanya lewat Admin SDK.
+    match /fcmTokens/{uid} {
+      allow read, delete: if request.auth != null && request.auth.uid == uid;
+      allow create, update: if request.auth != null && request.auth.uid == uid
+        && request.resource.data.keys().hasOnly(['tokens', 'at'])
+        && request.resource.data.tokens.size() <= 10;
     }
 
     // Laporan penyalahgunaan: hanya bisa dibuat, dibaca lewat Firebase Console
