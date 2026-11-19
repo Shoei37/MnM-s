@@ -11,12 +11,23 @@ service cloud.firestore {
     match /profiles/{uid} {
       allow read: if request.auth != null;
       allow create, update: if request.auth != null && request.auth.uid == uid
-        && request.resource.data.keys().hasOnly(['name', 'code', 'at'])
-        && request.resource.data.name is string && request.resource.data.name.size() > 0 && request.resource.data.name.size() <= 24;
+        && request.resource.data.keys().hasOnly(['name', 'code', 'at', 'handle', 'bio', 'bd'])
+        && request.resource.data.name is string && request.resource.data.name.size() > 0 && request.resource.data.name.size() <= 24
+        && (!('handle' in request.resource.data) || (request.resource.data.handle is string && request.resource.data.handle.matches('^[a-z0-9._-]{4,20}$')))
+        && (!('bio' in request.resource.data) || (request.resource.data.bio is string && request.resource.data.bio.size() <= 80))
+        && (!('bd' in request.resource.data) || (request.resource.data.bd is string && request.resource.data.bd.matches('^([0-9][0-9]-[0-9][0-9])?$')));
       allow delete: if request.auth != null && request.auth.uid == uid;
     }
 
     // Kode teman -> uid. Hanya bisa get (tidak bisa daftar semua), hanya bisa dibuat sekali
+    // ID unik pilihan pengguna (seperti LINE ID). Hanya bisa dibuat jika belum ada.
+    match /handles/{h} {
+      allow get: if request.auth != null;
+      allow create: if request.auth != null && h.matches('^[a-z0-9._-]{4,20}$')
+        && request.resource.data.keys().hasOnly(['uid']) && request.resource.data.uid == request.auth.uid;
+      allow delete: if request.auth != null && resource.data.uid == request.auth.uid;
+    }
+
     match /codes/{code} {
       allow get: if request.auth != null;
       allow create: if request.auth != null && request.resource.data.keys().hasOnly(['uid'])
@@ -67,16 +78,102 @@ service cloud.firestore {
         allow create: if request.auth != null
           && request.auth.uid in get(/databases/$(database)/documents/friends/$(pair)).data.members
           && get(/databases/$(database)/documents/friends/$(pair)).data.blocked == null
-          && request.resource.data.keys().hasOnly(['from', 'text', 'kind', 'at'])
+          && request.resource.data.keys().hasOnly(['from', 'text', 'kind', 'at', 'dur', 'reply', 'opts'])
           && request.resource.data.from == request.auth.uid
           && request.resource.data.text is string
-          && request.resource.data.kind in ['text', 'sticker', 'image']
+          && request.resource.data.kind in ['text', 'sticker', 'image', 'voice', 'call', 'poll', 'loc', 'contact']
+          && (!('opts' in request.resource.data) || (request.resource.data.opts is list && request.resource.data.opts.size() <= 6))
+          && (!('reply' in request.resource.data) || request.resource.data.reply is map)
           && (request.resource.data.kind == 'image'
               ? ((request.resource.data.text.size() <= 600000 && request.resource.data.text.matches('^data:image/jpeg;base64,.*'))
                  || (request.resource.data.text.size() <= 1500 && request.resource.data.text.matches('^https://firebasestorage.googleapis.com/.*')))
+              : request.resource.data.kind == 'voice'
+              ? (request.resource.data.text.size() <= 600000 && request.resource.data.text.matches('^data:audio/(webm|ogg|mp4|mpeg|aac|x-m4a)[;,].*'))
               : request.resource.data.text.size() <= 1000)
           && request.resource.data.at == request.time;
+        // reaksi emoji dan suara polling: anggota mana pun boleh mengubah field ini saja
+        allow update: if request.auth != null
+          && request.auth.uid in get(/databases/$(database)/documents/friends/$(pair)).data.members
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['react', 'votes']);
         allow delete: if request.auth != null && resource.data.from == request.auth.uid;
+      }
+    }
+
+
+    // Grup (anggota asli + tamu AI yang dibalas oleh perangkat pembuat grup)
+    match /groups/{gid} {
+      allow read: if request.auth != null && request.auth.uid in resource.data.members;
+      allow create: if request.auth != null
+        && request.resource.data.keys().hasOnly(['name', 'owner', 'members', 'ai', 'at', 'lastText', 'lastAt', 'lastFrom', 'read'])
+        && request.resource.data.owner == request.auth.uid
+        && request.auth.uid in request.resource.data.members
+        && request.resource.data.members.size() >= 2 && request.resource.data.members.size() <= 10
+        && request.resource.data.name is string && request.resource.data.name.size() > 0 && request.resource.data.name.size() <= 24
+        && request.resource.data.ai.size() <= 4;
+      allow update: if request.auth != null && request.auth.uid in resource.data.members
+        && (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['lastText', 'lastAt', 'lastFrom', 'read', 'notice'])
+            || (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['members'])
+                && request.resource.data.members.size() == resource.data.members.size() - 1
+                && !(request.auth.uid in request.resource.data.members)));
+      allow delete: if request.auth != null && resource.data.owner == request.auth.uid;
+
+      match /msgs/{mid} {
+        allow read: if request.auth != null
+          && request.auth.uid in get(/databases/$(database)/documents/groups/$(gid)).data.members;
+        allow create: if request.auth != null
+          && request.auth.uid in get(/databases/$(database)/documents/groups/$(gid)).data.members
+          && request.resource.data.keys().hasOnly(['from', 'text', 'kind', 'at', 'dur', 'reply', 'opts'])
+          && (!('opts' in request.resource.data) || (request.resource.data.opts is list && request.resource.data.opts.size() <= 6))
+          && (!('reply' in request.resource.data) || request.resource.data.reply is map)
+          && (request.resource.data.from == request.auth.uid
+              || (request.resource.data.from.matches('^ai:[A-Za-z0-9_]{1,20}$')
+                  && get(/databases/$(database)/documents/groups/$(gid)).data.owner == request.auth.uid
+                  && request.resource.data.kind == 'text'))
+          && request.resource.data.text is string
+          && request.resource.data.kind in ['text', 'sticker', 'image', 'voice', 'poll', 'loc', 'contact']
+          && (request.resource.data.kind == 'image'
+              ? (request.resource.data.text.size() <= 600000 && request.resource.data.text.matches('^data:image/jpeg;base64,.*'))
+              : request.resource.data.kind == 'voice'
+              ? (request.resource.data.text.size() <= 600000 && request.resource.data.text.matches('^data:audio/(webm|ogg|mp4|mpeg|aac|x-m4a)[;,].*'))
+              : request.resource.data.text.size() <= 1000)
+          && request.resource.data.at == request.time;
+        allow update: if request.auth != null
+          && request.auth.uid in get(/databases/$(database)/documents/groups/$(gid)).data.members
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['react', 'votes']);
+        allow delete: if request.auth != null
+          && (resource.data.from == request.auth.uid
+              || get(/databases/$(database)/documents/groups/$(gid)).data.owner == request.auth.uid);
+      }
+    }
+
+    // Panggilan suara/video (sinyal WebRTC). Hanya dua pihak yang boleh membaca/menulis.
+    match /calls/{cid} {
+      allow read: if request.auth != null && (resource.data.from == request.auth.uid || resource.data.to == request.auth.uid);
+      allow create: if request.auth != null
+        && request.resource.data.keys().hasOnly(['from', 'to', 'pair', 'kind', 'status', 'offer', 'at'])
+        && request.resource.data.from == request.auth.uid
+        && request.resource.data.kind in ['audio', 'video']
+        && request.resource.data.status == 'ringing'
+        && request.resource.data.pair == (request.resource.data.from < request.resource.data.to
+             ? request.resource.data.from + '_' + request.resource.data.to
+             : request.resource.data.to + '_' + request.resource.data.from)
+        && get(/databases/$(database)/documents/friends/$(request.resource.data.pair)).data.blocked == null;
+      allow update: if request.auth != null && (resource.data.from == request.auth.uid || resource.data.to == request.auth.uid)
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'answer']);
+      allow delete: if request.auth != null && (resource.data.from == request.auth.uid || resource.data.to == request.auth.uid);
+
+      match /cand/{id} {
+        allow read: if request.auth != null
+          && (get(/databases/$(database)/documents/calls/$(cid)).data.from == request.auth.uid
+              || get(/databases/$(database)/documents/calls/$(cid)).data.to == request.auth.uid);
+        allow create: if request.auth != null && request.resource.data.from == request.auth.uid
+          && request.resource.data.keys().hasOnly(['from', 'c'])
+          && request.resource.data.c.size() <= 2000
+          && (get(/databases/$(database)/documents/calls/$(cid)).data.from == request.auth.uid
+              || get(/databases/$(database)/documents/calls/$(cid)).data.to == request.auth.uid);
+        allow delete: if request.auth != null
+          && (get(/databases/$(database)/documents/calls/$(cid)).data.from == request.auth.uid
+              || get(/databases/$(database)/documents/calls/$(cid)).data.to == request.auth.uid);
       }
     }
 
